@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fake News Checker | 25BCYA07</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">&#x2756; TruthCheck</div>
+    <div class="nav-tabs">
+      <button class="tab-btn active" data-tab="checker">Checker</button>
+      <button class="tab-btn" data-tab="keywords">Keywords</button>
+      <button class="tab-btn" data-tab="history">History</button>
+    </div>
+  </nav>
+
+  <!-- ===== TAB: CHECKER ===== -->
+  <section class="tab-content active" id="tab-checker">
+    <div class="hero">
+      <h1>Is this news <span class="accent">real?</span></h1>
+      <p class="subtitle">Paste a headline or article snippet. Our AI analyses it instantly.</p>
+    </div>
+
+    <div class="card check-card">
+      <textarea id="news-input" placeholder="Paste your news headline or article snippet here…" rows="5"></textarea>
+      <button id="check-btn" onclick="checkNews()">
+        <span id="btn-text">Analyse News</span>
+        <span id="btn-spinner" class="spinner hidden"></span>
+      </button>
+    </div>
+
+    <!-- Result -->
+    <div class="card result-card hidden" id="result-card">
+      <div class="score-row">
+        <div class="score-circle" id="score-circle">
+          <span id="score-number">--</span>
+          <small>/ 100</small>
+        </div>
+        <div class="verdict-box">
+          <div class="verdict-badge" id="verdict-badge">--</div>
+          <p id="explanation-text"></p>
+        </div>
+      </div>
+
+      <div class="details-grid">
+        <div class="detail-block" id="red-flags-block">
+          <h4>&#9888; Red Flags</h4>
+          <ul id="red-flags-list"></ul>
+        </div>
+        <div class="detail-block" id="keywords-block">
+          <h4>&#128204; Matched Keywords</h4>
+          <ul id="keywords-list"></ul>
+        </div>
+      </div>
+
+      <div class="suggestion-box" id="suggestion-box">
+        <span>&#128161;</span>
+        <p id="suggestion-text"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TAB: KEYWORDS ===== -->
+  <section class="tab-content hidden" id="tab-keywords">
+    <div class="hero small">
+      <h2>Flagged Keywords</h2>
+      <p class="subtitle">Manage the keywords used to detect fake news patterns.</p>
+    </div>
+
+    <div class="card">
+      <div class="form-row">
+        <input type="text" id="kw-input" placeholder="Enter keyword or phrase" />
+        <select id="kw-category">
+          <option value="general">General</option>
+          <option value="clickbait">Clickbait</option>
+          <option value="conspiracy">Conspiracy</option>
+          <option value="health">Health Misinformation</option>
+          <option value="viral">Viral Misinformation</option>
+          <option value="sensational">Sensational</option>
+        </select>
+        <select id="kw-severity">
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+        </select>
+        <button onclick="addKeyword()">Add</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <table id="keywords-table">
+        <thead>
+          <tr>
+            <th>Keyword</th>
+            <th>Category</th>
+            <th>Severity</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="keywords-tbody">
+          <tr><td colspan="4" class="loading-row">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===== TAB: HISTORY ===== -->
+  <section class="tab-content hidden" id="tab-history">
+    <div class="hero small">
+      <h2>Search History</h2>
+      <p class="subtitle">Every news item checked is logged here.</p>
+    </div>
+
+    <div class="card">
+      <table id="history-table">
+        <thead>
+          <tr>
+            <th>News Text</th>
+            <th>Score</th>
+            <th>Result</th>
+            <th>Checked At</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="history-tbody">
+          <tr><td colspan="5" class="loading-row">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <script src="app.js"></script>
+</body>
+</html>
