@@ -8,9 +8,12 @@ on:
     types: [ completed ]
     branches: [ main ]
 
+permissions:
+  deployments: write
+  contents: read
+
 jobs:
   deploy:
-    # Only run deployment if test workflow succeeded
     if: github.event_name == 'push' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
 
@@ -26,16 +29,5 @@ jobs:
         VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         PRODUCTION: true
 
-
-    - name: Comment on PR
-      if: github.event_name == 'push'
-      uses: actions/github-script@v6
-      with:
-        script: |
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: '✅ Deployed to Vercel! Check the deployment URL in the Vercel dashboard.'
-          })
-      continue-on-error: true
+    - name: Deployment Success
+      run: echo "✅ Successfully deployed to Vercel!"
