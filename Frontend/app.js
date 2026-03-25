@@ -4,6 +4,57 @@
 const API_BASE = '/api';
 
 // =============================================
+// THEME TOGGLE
+// =============================================
+function initTheme() {
+  // Check if user has a saved preference in localStorage
+  const savedTheme = localStorage.getItem('theme');
+  
+  // If no preference saved, check system preference
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+  
+  // Apply theme to document
+  document.documentElement.setAttribute('data-theme', theme);
+  
+  // Update button icon
+  updateThemeIcon(theme);
+}
+
+function updateThemeIcon(theme) {
+  const btn = document.getElementById('theme-toggle');
+  if (btn) {
+    btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+  }
+}
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const currentTheme = html.getAttribute('data-theme');
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  
+  // Apply new theme
+  html.setAttribute('data-theme', newTheme);
+  
+  // Save preference to localStorage
+  localStorage.setItem('theme', newTheme);
+  
+  // Update button icon
+  updateThemeIcon(newTheme);
+}
+
+// Initialize theme on page load
+initTheme();
+
+// Add event listener to theme toggle button
+document.addEventListener('DOMContentLoaded', () => {
+  const themeBtn = document.getElementById('theme-toggle');
+  if (themeBtn) {
+    themeBtn.addEventListener('click', toggleTheme);
+  }
+});
+
+// =============================================
 // TAB SWITCHING
 // =============================================
 document.querySelectorAll('.tab-btn').forEach(btn => {

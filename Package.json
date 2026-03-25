@@ -10,7 +10,9 @@
   "scripts": {
     "start": "node Backend/server.js",
     "dev": "nodemon Backend/server.js",
-    "build": "echo 'No build step needed for this app'"
+    "build": "echo 'No build step needed for this app'",
+    "test": "echo 'Test suite to be implemented' && exit 0",
+    "lint": "echo 'Linting to be implemented' && exit 0"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",

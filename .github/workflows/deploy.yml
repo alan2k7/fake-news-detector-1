@@ -1,0 +1,39 @@
+name: Deploy to Vercel
+
+on:
+  push:
+    branches: [ main ]
+  workflow_run:
+    workflows: [ "Test" ]
+    types: [ completed ]
+    branches: [ main ]
+
+jobs:
+  deploy:
+    # Only run deployment if test workflow succeeded
+    if: github.event_name == 'push' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Deploy to Vercel
+      uses: BetaHuhn/deploy-to-vercel-action@v1
+      with:
+        VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+        VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        PRODUCTION: true
+
+    - name: Comment on PR
+      if: github.event_name == 'push'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: '✅ Deployed to Vercel! Check the deployment URL in the Vercel dashboard.'
+          })
+      continue-on-error: true
