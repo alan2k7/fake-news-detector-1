@@ -1,7 +1,9 @@
 // =============================================
 // CONFIG — point this to your backend
 // =============================================
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = window.location.hostname === 'localhost'
+  ? 'http://localhost:3000/api'
+  : 'https://fake-news-detector-1-4aya.onrender.com/api';
 // =============================================
 // THEME TOGGLE
 // =============================================
