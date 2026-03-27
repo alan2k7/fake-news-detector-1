@@ -1,18 +1,18 @@
 {
   "name": "fake-news-checker",
   "version": "1.0.0",
-  "description": "Fake News Checker - Full Stack App using Groq AI + Supabase DB - 25BCYA07 Alan Augustine K",
+  "description": "Fake News Checker - Full Stack App using Groq AI and Supabase",
   "private": true,
   "engines": {
-    "node": "18.x"
+    "node": ">=18"
   },
   "main": "Backend/server.js",
   "scripts": {
     "start": "node Backend/server.js",
     "dev": "nodemon Backend/server.js",
-    "build": "echo 'No build step needed for this app'",
-    "test": "echo 'Test suite to be implemented' && exit 0",
-    "lint": "echo 'Linting to be implemented' && exit 0"
+    "build": "echo \"No build step needed for this app\"",
+    "test": "echo \"Test suite to be implemented\" && exit 0",
+    "lint": "echo \"Linting to be implemented\" && exit 0"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
