@@ -1,37 +1,50 @@
-name: Test
+name: Backend CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches:
+      - main
+      - develop
   pull_request:
-    branches: [ main, develop ]
+    branches:
+      - main
+      - develop
 
 jobs:
-  test:
+  backend-test:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+      # 1. Checkout repo
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Setup Node
-      uses: actions/setup-node@v3
-      with:
-        node-version: 18
+      # 2. Setup Node
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
 
-    - name: Install backend dependencies
-      run: |
-        cd backend
-        npm install
+      # 3. Install dependencies (IMPORTANT: Backend folder)
+      - name: Install dependencies
+        run: |
+          cd Backend
+          npm install
 
-    - name: Run tests
-      run: |
-        cd backend
-        npm test --if-present
+      # 4. Run tests (if exists)
+      - name: Run tests
+        run: |
+          cd Backend
+          npm test --if-present
 
-    - name: Build check
-      run: |
-        cd backend
-        npm run build --if-present
+      # 5. Check server start (VERY IMPORTANT)
+      - name: Check server start
+        run: |
+          cd Backend
+          node server.js &
+          sleep 5
+          curl http://localhost:3000/health || exit 1
 
-    - name: Success message
-      run: echo "✅ Backend ready"
+      # 6. Success
+      - name: Success message
+        run: echo "✅ Backend is working correctly"
