@@ -21,8 +21,24 @@ router.post('/', async (req, res) => {
 
     // 2. Groq AI Analysis
     const chatCompletion = await groq.chat.completions.create({
-      messages: [{ role: 'user', content: `Analyze this news for credibility: "${news_text}". Respond ONLY in JSON: {"credibility_score": 0-100, "result": "FAKE/SUSPICIOUS/REAL", "explanation": "string", "red_flags": [], "suggestion": "string"}` }],
-      model: 'llama-3.3-70b-versatile',
+      messages: [
+  {
+    role: 'system',
+    content: 'You are a fast fake news detector. Respond ONLY in JSON.'
+  },
+  {
+    role: 'user',
+    content: `Analyze this news: "${news_text}". Return JSON with:
+    credibility_score (0-100),
+    result (FAKE, SUSPICIOUS, REAL),
+    explanation (short),
+    red_flags (array),
+    suggestion (short)`
+  }
+],
+      model: 'llama-3.1-8b-instant',
+      max_tokens: 300,
+      temperature: 0.2,
       response_format: { type: 'json_object' }
     });
 

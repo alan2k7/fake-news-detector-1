@@ -1,4 +1,5 @@
 require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -46,16 +47,7 @@ app.use((err, req, res, next) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`
-╔════════════════════════════════════════╗
-║   Fake News Checker API is running!    ║
-╠════════════════════════════════════════╣
-║  🌐 URL: http://localhost:${PORT}       ║
-║  📁 Frontend: /                         ║
-║  🔌 API: /api/*                        ║
-║  ❤️  Health: /health                   ║
-╚════════════════════════════════════════╝
-  `);
+  console.log(`Server running on port ${PORT}`);
 });
 
 module.exports = app;
