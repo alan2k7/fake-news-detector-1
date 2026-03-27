@@ -1,38 +1,19 @@
-name: Deploy to Vercel
+name: Deploy Frontend to Vercel
 
 on:
   push:
     branches: [ main ]
-  workflow_run:
-    workflows: [ "Test" ]
-    types: [ completed ]
-    branches: [ main ]
 
 jobs:
   deploy:
-    if: github.event_name == 'push' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-
       - name: Install Vercel CLI
-        run: npm install --global vercel@latest
-
-      - name: Pull Vercel Project Info
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: npm install -g vercel
 
       - name: Deploy to Vercel
-        run: vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }}
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: vercel --prod --token=${{ secrets.VERCEL_TOKEN }}

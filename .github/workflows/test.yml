@@ -10,36 +10,28 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [18.x]
-
     steps:
     - uses: actions/checkout@v3
 
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Setup Node
       uses: actions/setup-node@v3
       with:
-        node-version: ${{ matrix.node-version }}
-        cache: 'npm'
+        node-version: 18
 
-    - name: Install dependencies
-      run: npm ci
-
-    - name: Run linter (if available)
-      run: npm run lint --if-present
-      continue-on-error: true
+    - name: Install backend dependencies
+      run: |
+        cd backend
+        npm install
 
     - name: Run tests
-      run: npm test
-      continue-on-error: true
+      run: |
+        cd backend
+        npm test --if-present
 
     - name: Build check
-      run: npm run build --if-present
-      continue-on-error: true
-
-    - name: Health check
       run: |
-        echo "✅ Dependencies installed"
-        echo "✅ Backend structure verified"
-        echo "Report: Testing completed successfully"
+        cd backend
+        npm run build --if-present
+
+    - name: Success message
+      run: echo "✅ Backend ready"
