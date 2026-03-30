@@ -1,14 +1,20 @@
 const express = require('express');
 const router = express.Router();
+const cache = new Map();
 const Groq = require('groq-sdk');
 const supabase = require('../supabaseClient');
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-
 router.post('/', async (req, res) => {
   const { news_text } = req.body;
+
   if (!news_text || news_text.trim() === '') {
     return res.status(400).json({ error: 'News text is required' });
+  }
+
+  if (cache.has(news_text)) {
+    console.log("⚡ Cache hit");
+    return res.json(cache.get(news_text));
   }
 
   try {
@@ -52,7 +58,14 @@ router.post('/', async (req, res) => {
       matched_keywords: matched.map(k => k.keyword)
     }]);
 
-    res.json({ ...analysis, matched_keywords: matched.map(k => ({ keyword: k.keyword, severity: k.severity })) });
+   const result = {
+  ...analysis,
+  matched_keywords: matched.map(k => ({ keyword: k.keyword, severity: k.severity }))
+};
+
+cache.set(news_text, result);
+
+res.json(result);
   } catch (err) {
     console.error('Check Error:', err);
     res.status(500).json({ error: 'Analysis failed' });

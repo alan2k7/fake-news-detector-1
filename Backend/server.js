@@ -4,14 +4,21 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 
+const app = express(); 
+
+app.use(cors({
+  origin: '*'
+}));
+
+app.use(express.json());
+
 const checkRoute = require('./routes/check');
 const keywordsRoute = require('./routes/keywords');
 const historyRoute = require('./routes/history');
 
-const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+
 app.use(express.json());
 
 // API Routes
