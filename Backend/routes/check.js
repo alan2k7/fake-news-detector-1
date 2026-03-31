@@ -6,6 +6,7 @@ const supabase = require('../supabaseClient');
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 router.post('/', async (req, res) => {
+  console.log("🔥 API HIT");
   const { news_text } = req.body;
 
   if (!news_text || news_text.trim() === '') {
@@ -18,37 +19,57 @@ router.post('/', async (req, res) => {
   }
 
   try {
+    console.log("👉 Fetching keywords...");
     // 1. Get Keywords
-    const { data: keywords, error: kwError } = await supabase.from('flagged_keywords').select('*');
-    if (kwError) throw kwError;
+   const keywords = [
+  { keyword: "fake", severity: "high" },
+  { keyword: "shocking", severity: "medium" }
+];
 
     const lowerText = news_text.toLowerCase();
     const matched = keywords.filter(k => lowerText.includes(k.keyword.toLowerCase()));
 
+    console.log("🤖 Calling Groq...");
     // 2. Groq AI Analysis
-    const chatCompletion = await groq.chat.completions.create({
-      messages: [
-  {
-    role: 'system',
-    content: 'You are a fast fake news detector. Respond ONLY in JSON.'
-  },
-  {
-    role: 'user',
-    content: `Analyze this news: "${news_text}". Return JSON with:
-    credibility_score (0-100),
-    result (FAKE, SUSPICIOUS, REAL),
-    explanation (short),
-    red_flags (array),
-    suggestion (short)`
-  }
-],
-      model: 'llama-3.1-8b-instant',
-      max_tokens: 300,
-      temperature: 0.2,
-      response_format: { type: 'json_object' }
-    });
+const chatCompletion = await Promise.race([
+  groq.chat.completions.create({
+    messages: [
+      {
+        role: 'system',
+        content: 'You are a fast fake news detector. Respond ONLY in JSON.'
+      },
+      {
+        role: 'user',
+        content: `Analyze this news: "${news_text}". Return JSON with:
+credibility_score (0-100),
+result (FAKE, SUSPICIOUS, REAL),
+explanation (short),
+red_flags (array),
+suggestion (short)`
+      }
+    ],
+    model: 'llama-3.1-8b-instant',
+    max_tokens: 120,
+    temperature: 0.2,
+    response_format: { type: 'json_object' }
+  }),
 
-    const analysis = JSON.parse(chatCompletion.choices[0].message.content);
+  new Promise((_, reject) =>
+    setTimeout(() => reject(new Error("Groq timeout")), 5000)
+  )
+]);
+let analysis;
+try {
+  analysis = JSON.parse(chatCompletion.choices[0].message.content);
+} catch (e) {
+  analysis = {
+    credibility_score: 50,
+    result: "UNKNOWN",
+    explanation: "AI response parsing failed",
+    red_flags: [],
+    suggestion: "Try again"
+  };
+}
 
     // 3. Save to History
     await supabase.from('search_history').insert([{
@@ -65,6 +86,7 @@ router.post('/', async (req, res) => {
 
 cache.set(news_text, result);
 
+console.log("✅ Sending response")
 res.json(result);
   } catch (err) {
     console.error('Check Error:', err);
