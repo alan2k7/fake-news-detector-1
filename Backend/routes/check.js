@@ -8,6 +8,37 @@ const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 router.post('/', async (req, res) => {
   console.log("🔥 API HIT");
   const { news_text } = req.body;
+  // 🔍 Trusted sources
+const trustedSources = [
+  "bbc",
+  "ndtv",
+  "reuters",
+  "cnn",
+  "the hindu",
+  "times of india",
+  "indian express",
+  "al jazeera"
+];
+
+const isTrusted = trustedSources.some(src =>
+  news_text.toLowerCase().includes(src)
+);
+
+// ❌ Fake usage of trusted sources
+const fakeSourcePatterns = [
+  "bbc claims",
+  "bbc hiding",
+  "ndtv exposed",
+  "reuters hiding",
+  "cnn not showing",
+  "media won't show",
+  "government hiding truth",
+  "mainstream media lies"
+];
+
+const suspiciousSource = fakeSourcePatterns.some(p =>
+  news_text.toLowerCase().includes(p)
+);
 
   if (!news_text || news_text.trim() === '') {
     return res.status(400).json({ error: 'News text is required' });
@@ -36,7 +67,15 @@ const chatCompletion = await Promise.race([
     messages: [
       {
         role: 'system',
-        content: 'You are a fast fake news detector. Respond ONLY in JSON.'
+        content: `You are an intelligent fake news detector.
+
+RULES:
+- Mentioning BBC, NDTV, Reuters does NOT guarantee truth
+- People can misuse trusted sources in fake news
+- Do NOT mark news as fake just because of strong words like war, attack
+- Focus on whether the claim itself is misleading or false
+
+Respond ONLY in JSON.`
       },
       {
         role: 'user',
@@ -79,9 +118,27 @@ try {
       matched_keywords: matched.map(k => k.keyword)
     }]);
 
-   const result = {
-  ...analysis,
-  matched_keywords: matched.map(k => ({ keyword: k.keyword, severity: k.severity }))
+  let finalResult = { ...analysis };
+
+// ✅ small boost if trusted
+if (isTrusted) {
+  finalResult.credibility_score += 10;
+}
+
+// ❌ penalty if fake usage
+if (suspiciousSource) {
+  finalResult.credibility_score -= 20;
+}
+
+// keep score between 0–100
+finalResult.credibility_score = Math.max(0, Math.min(100, finalResult.credibility_score));
+
+const result = {
+  ...finalResult,
+  matched_keywords: matched.map(k => ({
+    keyword: k.keyword,
+    severity: k.severity
+  }))
 };
 
 cache.set(news_text, result);
